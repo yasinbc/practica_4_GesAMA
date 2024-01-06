@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1704574452 source:c:\temp\practica_4\practica_4.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<limits.h>
+	<ctype.h>
+	<math.h>
+	<stdbool.h>
+
