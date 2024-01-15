@@ -130,10 +130,106 @@ void calcularNuevaFecha(int dia, int mes, int anno, int diasAgregados) {
 }
 
 /*===================================================================================
+            FUNCION PARA CALCULAR LA NUEVA FECHA DIA
+====================================================================================*/
+int calcularNuevaFechaDia(int dia, int mes, int anno, int diasAgregados) {
+    int diasEnMes;
+
+    // Ciclo para sumar los días
+    while (diasAgregados > 0) {
+        diasEnMes = obtenerDiasEnMes(anno, mes);
+
+        // Si quedan más días en el mes actual
+        if (dia + diasAgregados <= diasEnMes) {
+            dia = dia + diasAgregados;
+            diasAgregados = 0;
+        } else {
+            // Pasar al siguiente mes
+            diasAgregados = diasAgregados - (diasEnMes - dia + 1);
+            dia = 1;
+
+            // Si queda más de un mes, avanzar al siguiente mes
+            mes = mes + 1;
+            if (mes > 12) {
+                mes = 1;
+                anno++;
+            }
+        }
+    }
+
+    // Imprimir dia
+    return dia ;
+}
+
+/*===================================================================================
+            FUNCION PARA CALCULAR LA NUEVA FECHA MES
+====================================================================================*/
+int calcularNuevaFechaMes(int dia, int mes, int anno, int diasAgregados) {
+    int diasEnMes;
+
+    // Ciclo para sumar los días
+    while (diasAgregados > 0) {
+        diasEnMes = obtenerDiasEnMes(anno, mes);
+
+        // Si quedan más días en el mes actual
+        if (dia + diasAgregados <= diasEnMes) {
+            dia = dia + diasAgregados;
+            diasAgregados = 0;
+        } else {
+            // Pasar al siguiente mes
+            diasAgregados = diasAgregados - (diasEnMes - dia + 1);
+            dia = 1;
+
+            // Si queda más de un mes, avanzar al siguiente mes
+            mes = mes + 1;
+            if (mes > 12) {
+                mes = 1;
+                anno++;
+            }
+        }
+    }
+
+    // Imprimir mes
+    return mes ;
+}
+
+/*===================================================================================
+            FUNCION PARA CALCULAR LA NUEVA FECHA ANNO
+====================================================================================*/
+int calcularNuevaFechaAnno(int dia, int mes, int anno, int diasAgregados) {
+    int diasEnMes;
+
+    // Ciclo para sumar los días
+    while (diasAgregados > 0) {
+        diasEnMes = obtenerDiasEnMes(anno, mes);
+
+        // Si quedan más días en el mes actual
+        if (dia + diasAgregados <= diasEnMes) {
+            dia = dia + diasAgregados;
+            diasAgregados = 0;
+        } else {
+            // Pasar al siguiente mes
+            diasAgregados = diasAgregados - (diasEnMes - dia + 1);
+            dia = 1;
+
+            // Si queda más de un mes, avanzar al siguiente mes
+            mes = mes + 1;
+            if (mes > 12) {
+                mes = 1;
+                anno++;
+            }
+        }
+    }
+
+    // Imprimir anno
+    return anno ;
+}
+
+/*===================================================================================
                   FUNCION PARA IMPRIMIR TODA LA LOGICA DEL CALENDARIO
 ====================================================================================*/
 void CalendarioDisplay(){
-    int  diasDeLaSemana,
+  int  diasDeLaSemana,
   diasDelMes, diasDelMesAnterior,
   diaActual, diasDelSiguienteMes, contador, indiceDiaSemana;
   Anno registroAnno;
@@ -280,6 +376,9 @@ TipoTablaMaquinas tablaMaquinas = {};
 TipoTablaFincas tablaFincas = {};
 TipoTablaAlquiler tablaAlquiler = {};
 
+/*=====================================================================================
+                                BORRAR ALQUILER MAQUINA
+=======================================================================================*/
 void TipoDatosAlquilerMaquina::borrarAlquilerMaquina(TipoDatosAlquilerMaquina datos){
   datos.id = 0;
   datos.mes = 0;
@@ -816,7 +915,9 @@ float distanciaHarvesine(float lat1, float lon1, float lat2, float lon2){
   return distancia;
 }
 
-// Función para verificar la disponibilidad de la máquina en una fecha específica
+/*=====================================================================================
+                VERIFICA DISPONIBILDAD DE LA MAQUINA EN UNA FECHA DADA
+=======================================================================================*/
 bool verificarDisponibilidad(TipoDatosAlquilerMaquina datosAlquiler, int dia, int mes, int anno) {
     int diasTranscurridos;
 
@@ -837,6 +938,229 @@ bool verificarDisponibilidad(TipoDatosAlquilerMaquina datosAlquiler, int dia, in
         printf("La fecha solicitada está fuera del período de alquiler de la máquina.\n");
         return false;
     }
+}
+
+/***************************************************************************************/
+/**                                  CALENDARIO                                       **/
+/***************************************************************************************/
+typedef int TipoArray6[6];
+typedef TipoArray6 MatrizCalendario6x7[7];
+MatrizCalendario6x7 matrizCalendario;
+typedef int TipoArrayDiasMes31[30];
+
+/*=====================================================================================
+                        FUNCION DIAS OCUPACION COSECHA
+=======================================================================================*/
+void obtenerDiasOcupados(int dia, int mes, int anno, int duracionCosecha, TipoArrayDiasMes31 diasOcupados) {
+  int diasEnMes;
+  int diasAgregados = 0;
+
+  for(int i = 0; i < duracionCosecha; i++) {
+    diasEnMes = obtenerDiasEnMes(anno, mes);
+      // Si quedan más días en el mes actual
+      if (dia + diasAgregados <= diasEnMes) {
+        diasOcupados[i] = dia + diasAgregados;
+      } else {
+        // Pasar al siguiente mes
+        diasAgregados = diasAgregados - (diasEnMes - dia + 1);
+        dia = 1;
+
+        // Si queda más de un mes, avanzar al siguiente mes
+        mes = mes + 1;
+        if (mes > 12) {
+          mes = 1;
+            anno++;
+          }
+        }
+
+    diasAgregados = diasAgregados+1;
+  }
+}
+
+/*=====================================================================================
+                            CALENDARIO PLAN MENSUAL
+=======================================================================================*/
+void CalendarioPlanMensualMaquina(){
+  int  diasDeLaSemana,
+  diasDelMes, diasDelMesAnterior,
+  diaActual, diasDelSiguienteMes, contador, indiceDiaSemana;
+  Anno registroAnno;
+  bool imprimirUltimaLinea;
+  int idMaquina;
+  int tiempoEnDias;
+  int distancia;
+  int duracionCosecha;
+  int tiempoTraslado;
+  int diaAux;
+  int mesAux;
+  int annoAux;
+  char opcionAux;
+  char opcionCaracterSN;
+  bool opcionSN;
+
+
+
+  int primerDia;
+
+
+  imprimirUltimaLinea = false;
+
+  do{
+
+    contador = 0 ;
+    indiceDiaSemana=0;
+    /******************************************************************************/
+    printf("Plan mensual Maquina:\n");
+    printf("Identificador maquina? \n");
+    scanf("%d", &idMaquina);
+    printf("Seleccion Mes? \n");
+    scanf("%d", &registroAnno.mes);
+    printf("Seleccion Anno?\n");
+    scanf("%d", &registroAnno.anno);
+    /******************************************************************************/
+
+    //TIEMPO DE TRASLADO -> tiempoEnDias
+    distancia = distanciaHarvesine(
+      tablaMaquinas[idMaquina-1].latitud,
+      tablaMaquinas[idMaquina-1].longitud,
+      tablaFincas[idMaquina-1].latitud,
+      tablaFincas[idMaquina-1].longitud
+    );
+    tiempoEnDias = 0;
+    tiempoEnDias = ceil(calcularTiempo(distancia, 60.00));
+
+
+    if( (registroAnno.anno >= 1601 && registroAnno.anno <= 3000)
+        &&
+        (registroAnno.mes >= 1 && registroAnno.mes <= 12) ) {
+
+
+      // Obtener el dia de la semana en el que comienza el mes
+      diasDeLaSemana = obtenerDiaSemana(registroAnno.anno, registroAnno.mes, 1);
+
+      // Obtener la cantidad de dias en el mes
+      diasDelMes = obtenerDiasEnMes(registroAnno.anno, registroAnno.mes);
+
+      // Calcular la cantidad de dias del mes anterior que se solapan
+      if (diasDeLaSemana == 0) {
+        diasDelMesAnterior = 6;
+      } else {
+        diasDelMesAnterior = diasDeLaSemana - 1;
+      }
+
+      // Variable para rastrear el dia actual
+      diaActual = 1;
+
+
+
+
+      /********************************************************************************************/
+      //Tiempo traslado
+      tiempoTraslado = ceil(calcularTiempo(distancia, 60.00));
+
+
+      //Fecha comienzo
+      diaAux = calcularNuevaFechaDia(
+              tablaAlquiler[idMaquina-1].dia,
+              tablaAlquiler[idMaquina-1].mes,
+              tablaAlquiler[idMaquina-1].anno,
+              tiempoTraslado
+      );
+      mesAux = calcularNuevaFechaMes(
+              tablaAlquiler[idMaquina-1].dia,
+              tablaAlquiler[idMaquina-1].mes,
+              tablaAlquiler[idMaquina-1].anno,
+              tiempoTraslado
+      );
+      annoAux = calcularNuevaFechaAnno(
+              tablaAlquiler[idMaquina-1].dia,
+              tablaAlquiler[idMaquina-1].mes,
+              tablaAlquiler[idMaquina-1].anno,
+              tiempoTraslado
+      );
+
+      //Duracion cosecha
+      duracionCosecha = CalculoHectariasDias(
+                        tablaMaquinas[idMaquina-1].capacidad,
+                        tablaFincas[idMaquina-1].tamanno
+      );
+
+
+      printf("                            Plan Maquina: %s \n",tablaMaquinas[idMaquina-1].nombre);
+      printf("\n%s      %2d\n", cabecerasCalendario[registroAnno.mes-1] , registroAnno.anno);
+      printf(" L  M  X  J  V  S  D\n");
+      printf("---------------------\n");
+
+                                                                      //diaActual
+      primerDia = obtenerDiaSemana(registroAnno.anno, registroAnno.mes, 1)-1;
+
+      for(int i = 0; i < primerDia; i++) {
+        printf("   ");
+      }
+
+      for (int dia = 1; dia <= diasDelMes; dia++) {
+        if((dia >= tiempoTraslado) && dia < (tiempoTraslado + tiempoTraslado)){
+          printf("Tr ");
+        }else if(dia >= diaAux && dia < (diaAux + duracionCosecha)){
+          printf("C%d ",tablaMaquinas[idMaquina-1].id);
+        }else{
+          printf("%2d ", dia);
+        }
+
+        if ((primerDia + dia) % 7 == 0) {
+          printf("\n");
+        }
+      }
+
+      printf("\n");
+
+      printf("Tiempo de traslado (Tr): %d dias\n", tiempoTraslado);
+    printf("Tiempo de espera: dias\n");
+    printf("Cosecha C%d: finca %s\n", tablaMaquinas[idMaquina-1].id, tablaFincas[idMaquina-1].nombre);
+    printf("Tiempo total de cosechas (C#): %d dias\n", duracionCosecha);
+
+    printf("Mostrar otro mes (S/N)?\n");
+
+    opcionAux = '\0';
+    opcionCaracterSN = '\0';
+    scanf("%s", &opcionAux);
+    opcionCaracterSN = toupper(opcionAux);
+    fflush(stdin);
+    if(opcionCaracterSN == 'S'){
+      opcionSN = true;
+    }else if(opcionCaracterSN == 'N'){
+      opcionSN = false;
+    }
+    } else {
+      //Si no se introduce mes y anno bien, salta este mensaje
+      printf("\nIntroduzca meses comprendidos del 1 al 12 y anno comprendido del 1601 al 3000.\n");
+    }//fin condicion 1601 <= anno <= 3000
+
+    /********************************************************************************************/
+
+
+  }while(opcionSN);
+
+
+  system("pause");
+}
+
+/*=====================================================================================
+                                CALENDARIO MAQUINA
+=======================================================================================*/
+void PlanMensualMaquina(){
+  int idMaquina;
+  int mes;
+  int anno;
+  int tiempoTraslados;
+  int tiempoEsperas;
+  int tiempoCosechas;
+  char respuesta;
+
+  /********************************************************************/
+  /**             IMPRIME CALENDARIO CON PLAN MENSUAL                **/
+  /********************************************************************/
+  CalendarioPlanMensualMaquina();
 }
 
 /*=====================================================================================
@@ -1055,13 +1379,6 @@ void AlquilerMaquina(){
       );
       printf(" (%d dia/s)\n", calHecDia);
 
-      /*
-      printf("Fecha finalizacion: %d/%d/%d\n",
-      (datosAlquilerMaquina.dia + calHecDia),
-      (datosAlquilerMaquina.mes),
-      (datosAlquilerMaquina.anno),
-      calHecDia);
-      */
       system("pause");
       /* PREGUNTAR: Es correcta la operacion? (S/N) */
       while(bOpcionSN){
@@ -1171,6 +1488,7 @@ int main(){
         cicloMenu = true;
         break;
       case 'P':
+        PlanMensualMaquina();
         printf("\nP: Plan Mensual Maquina\n");
         cicloMenu = true;
         break;
